@@ -11,6 +11,8 @@ contract Staker {
   mapping(address => uint) public balances;
 
   uint public constant threshold = 1 ether;
+  uint public deadline = block.timestamp + 30 seconds;
+  bool openForWithdraw = false;
 
   constructor(address exampleExternalContractAddress){
       exampleExternalContract = ExampleExternalContract(exampleExternalContractAddress);
@@ -34,16 +36,37 @@ contract Staker {
 
   // After some `deadline` allow anyone to call an `execute()` function
   //  It should either call `exampleExternalContract.complete{value: address(this).balance}()` to send all the value
+  function execute() public{
+    require(block.timestamp >= deadline, "Not passed deadline yet!");
 
+    if(address(this).balance >= threshold){
+      exampleExternalContract.complete{value: address(this).balance}();
+    }
+    else {
+      openForWithdraw = true;
+    }
+  }
 
   // if the `threshold` was not met, allow everyone to call a `withdraw()` function
 
 
-  // Add a `withdraw(address payable)` function lets users withdraw their balance
+  function withdraw(address payable _to) public {
+    require(balances[_to] > 0, "You didn't stake anything!");
+
+    (bool success, ) = _to.call{value: balances[_to]}("");
+    require(success, "Failed to send Ether");
+    delete balances[_to];
+  }
 
 
   // Add a `timeLeft()` view function that returns the time left before the deadline for the frontend
-
+  function timeLeft() public view returns(uint){
+    if(block.timestamp >= deadline){
+      return 0;
+    } else {
+      return deadline - block.timestamp;
+    }
+  }
 
   // Add the `receive()` special function that receives eth and calls stake()
 
