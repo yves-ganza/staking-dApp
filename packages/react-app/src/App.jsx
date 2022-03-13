@@ -30,29 +30,11 @@ import Authereum from "authereum";
 import humanizeDuration from "humanize-duration";
 
 const { ethers } = require("ethers");
-/*
-    Welcome to 🏗 scaffold-eth !
-
-    Code:
-    https://github.com/austintgriffith/scaffold-eth
-
-    Support:
-    https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA
-    or DM @austingriffith on twitter or telegram
-
-    You should get your own Infura.io ID and put it in `constants.js`
-    (this is your connection to the main Ethereum network for ENS etc.)
-
-
-    🌏 EXTERNAL CONTRACTS:
-    You can also bring in contract artifacts in `constants.js`
-    (and then use the `useExternalContractLoader()` hook!)
-*/
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.localhost; // <------- (localhost, rinkeby, xdai, mainnet)
 
-// 😬 Sorry for all the console logging
+// 😬 Sorry for all the console logging (Love it)
 const DEBUG = true;
 const NETWORKCHECK = true;
 
@@ -467,7 +449,7 @@ function App(props) {
           onClick={() => {
             faucetTx({
               to: address,
-              value: ethers.utils.parseEther("0.01"),
+              value: ethers.utils.parseEther("5.00"),
             });
             setFaucetClicked(true);
           }}
@@ -637,13 +619,7 @@ function App(props) {
 
       <div style={{ marginTop: 32, opacity: 0.5 }}>
         {/* Add your address here */}
-        Created by <Address value={"Your...address"} ensProvider={mainnetProvider} fontSize={16} />
-      </div>
-
-      <div style={{ marginTop: 32, opacity: 0.5 }}>
-        <a target="_blank" style={{ padding: 32, color: "#000" }} href="https://github.com/scaffold-eth/scaffold-eth">
-          🍴 Fork me!
-        </a>
+        Created with <span style={{ padding: 10 }}>💗</span> by <Address value={"0xB1898A42cfE1a82F9A8C363E48ce05394c64fE70"} ensProvider={mainnetProvider} fontSize={16} />
       </div>
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}

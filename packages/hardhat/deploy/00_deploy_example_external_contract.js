@@ -5,7 +5,7 @@ const { ethers } = require("hardhat");
 module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
-  const chianId = await getChainId();
+  const chainId = await getChainId();
 
   await deploy("ExampleExternalContract", {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy

@@ -8,13 +8,29 @@ contract Staker {
 
   ExampleExternalContract public exampleExternalContract;
 
-  constructor(address exampleExternalContractAddress) public {
+  mapping(address => uint) public balances;
+
+  uint public constant threshold = 1 ether;
+
+  constructor(address exampleExternalContractAddress){
       exampleExternalContract = ExampleExternalContract(exampleExternalContractAddress);
   }
 
+  event Stake(address, uint);
+
   // Collect funds in a payable `stake()` function and track individual `balances` with a mapping:
   //  ( make sure to add a `Stake(address,uint256)` event and emit it for the frontend <List/> display )
+  function stake() public payable {
+    require(msg.value >= 0.001 ether, "Not enough ether!");
 
+    uint amount = msg.value;
+    balances[msg.sender] += amount;
+    emit Stake(msg.sender, amount);
+  }
+
+  function balance() public view returns(uint){
+    return address(this).balance;
+  }
 
   // After some `deadline` allow anyone to call an `execute()` function
   //  It should either call `exampleExternalContract.complete{value: address(this).balance}()` to send all the value
