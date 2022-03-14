@@ -12,18 +12,24 @@ contract Staker {
 
   uint public constant threshold = 1 ether;
   uint public deadline = block.timestamp + 30 seconds;
-  bool openForWithdraw = false;
+  bool executed = false;
+
 
   constructor(address exampleExternalContractAddress){
-      exampleExternalContract = ExampleExternalContract(exampleExternalContractAddress);
+    exampleExternalContract = ExampleExternalContract(exampleExternalContractAddress);
+  }
+
+  modifier notCompleted(){
+    require(!exampleExternalContract.completed(), "Staking Completed!");
+    _;
   }
 
   event Stake(address, uint);
 
-  // Collect funds in a payable `stake()` function and track individual `balances` with a mapping:
-  //  ( make sure to add a `Stake(address,uint256)` event and emit it for the frontend <List/> display )
+
   function stake() public payable {
-    require(msg.value >= 0.001 ether, "Not enough ether!");
+    require(!executed, "Goal reached , staking not allowed!");
+    require(msg.value >= 0.001 ether, "Minimum 0.001 ether!");
 
     uint amount = msg.value;
     balances[msg.sender] += amount;
@@ -34,24 +40,18 @@ contract Staker {
     return address(this).balance;
   }
 
-  // After some `deadline` allow anyone to call an `execute()` function
-  //  It should either call `exampleExternalContract.complete{value: address(this).balance}()` to send all the value
-  function execute() public{
-    require(block.timestamp >= deadline, "Not passed deadline yet!");
 
-    if(address(this).balance >= threshold){
-      exampleExternalContract.complete{value: address(this).balance}();
-    }
-    else {
-      openForWithdraw = true;
-    }
+  function execute() public notCompleted{
+    require(block.timestamp >= deadline, "Can't execute before deadline!");
+
+    require(address(this).balance >= threshold, "Threshold not reached yet, keep staking!");
+
+    exampleExternalContract.complete{value: address(this).balance}();
+    executed = true;
   }
 
-  // if the `threshold` was not met, allow everyone to call a `withdraw()` function
-
-
-  function withdraw(address payable _to) public {
-    require(balances[_to] > 0, "You didn't stake anything!");
+  function withdraw(address payable _to) public notCompleted{
+    require(balances[_to] > 0, "No contributions found for this address");
 
     (bool success, ) = _to.call{value: balances[_to]}("");
     require(success, "Failed to send Ether");
@@ -59,7 +59,6 @@ contract Staker {
   }
 
 
-  // Add a `timeLeft()` view function that returns the time left before the deadline for the frontend
   function timeLeft() public view returns(uint){
     if(block.timestamp >= deadline){
       return 0;
@@ -68,7 +67,8 @@ contract Staker {
     }
   }
 
-  // Add the `receive()` special function that receives eth and calls stake()
-
+  receive() external payable {
+    stake();
+  }
 
 }
