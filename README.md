@@ -1,6 +1,6 @@
 # 🥩 Decentralized Staking App
 
-> See demo: https://ipfs.io/ipfs://bafybeigu3bj74zm6zectosfqzes76nrrequm4tz3muynop7uaodzfydiva/
+> See demo: https://ipfs.io/ipfs/bafybeigu3bj74zm6zectosfqzes76nrrequm4tz3muynop7uaodzfydiva/
 
 
 
