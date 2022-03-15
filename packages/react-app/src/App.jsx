@@ -8,6 +8,7 @@ import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
 import Web3Modal from "web3modal";
 import "./App.css";
 import { Account, Address, Balance, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
+import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import {
@@ -31,8 +32,9 @@ import humanizeDuration from "humanize-duration";
 
 const { ethers } = require("ethers");
 
+
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.rinkeby; // <------- (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging (Love it)
 const DEBUG = true;
@@ -166,6 +168,9 @@ function App(props) {
     }, 1);
   };
 
+  const {currentTheme} = useThemeSwitcher();
+
+
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
   const price = useExchangeEthPrice(targetNetwork, mainnetProvider);
 
@@ -263,7 +268,13 @@ function App(props) {
   let completeDisplay = "";
   if (complete) {
     completeDisplay = (
-      <div style={{ padding: 64, backgroundColor: "#eeffef", fontWeight: "bolder" }}>
+      <div
+        style={{
+          padding: 64,
+          backgroundColor: `${currentTheme === "light" ? "#eeffef" : "#67568c"}`,
+          fontWeight: "bolder",
+        }}
+      >
         🚀 🎖 👩‍🚀 - Staking App triggered `ExampleExternalContract` -- 🎉 🍾 🎊
         <Balance balance={exampleExternalContractBalance} fontSize={64} /> ETH staked!
       </div>
@@ -319,7 +330,7 @@ function App(props) {
     const networkLocal = NETWORK(localChainId);
     if (selectedChainId === 1337 && localChainId === 31337) {
       networkDisplay = (
-        <div style={{ zIndex: 2, position: "absolute", right: 0, top: 60, padding: 16 }}>
+        <div style={{ zIndex: 2 }}>
           <Alert
             message="⚠️ Wrong Network ID"
             description={
@@ -336,7 +347,7 @@ function App(props) {
       );
     } else {
       networkDisplay = (
-        <div style={{ zIndex: 2, position: "absolute", right: 0, top: 60, padding: 16 }}>
+        <div style={{ zIndex: 2 }}>
           <Alert
             message="⚠️ Wrong Network"
             description={
@@ -433,39 +444,57 @@ function App(props) {
   let faucetHint = "";
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
-  const [faucetClicked, setFaucetClicked] = useState(false);
-  if (
-    !faucetClicked &&
-    localProvider &&
-    localProvider._network &&
-    localProvider._network.chainId === 31337 &&
-    yourLocalBalance &&
-    ethers.utils.formatEther(yourLocalBalance) <= 0
-  ) {
-    faucetHint = (
-      <div style={{ padding: 16 }}>
-        <Button
-          type="primary"
-          onClick={() => {
-            faucetTx({
-              to: address,
-              value: ethers.utils.parseEther("5.00"),
-            });
-            setFaucetClicked(true);
-          }}
-        >
-          💰 Grab funds from the faucet ⛽️
-        </Button>
-      </div>
-    );
-  }
+  // const [faucetClicked, setFaucetClicked] = useState(false);
+  // if (
+  //   !faucetClicked &&
+  //   localProvider &&
+  //   localProvider._network &&
+  //   localProvider._network.chainId === 31337 &&
+  //   yourLocalBalance &&
+  //   ethers.utils.formatEther(yourLocalBalance) <= 0
+  // ) {
+  //   faucetHint = (
+  //     <div style={{ padding: 16 }}>
+  //       <Button
+  //         type="primary"
+  //         onClick={() => {
+  //           faucetTx({
+  //             to: address,
+  //             value: ethers.utils.parseEther("5.00"),
+  //           });
+  //           setFaucetClicked(true);
+  //         }}
+  //       >
+  //         💰 Grab funds from the faucet ⛽️
+  //       </Button>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="App">
-      {/* ✏️ Edit the header and change the title to your project name */}
-      <Header />
-      {networkDisplay}
-      <div>
+      <Row>
+        <Col span={6}>
+          <Header />
+        </Col>
+        <Col span={18} style={{ padding: 16 }} gutter={[4, 4]}>
+          <Row justify="end">
+            <Account
+              address={address}
+              localProvider={localProvider}
+              userSigner={userSigner}
+              mainnetProvider={mainnetProvider}
+              price={price}
+              web3Modal={web3Modal}
+              loadWeb3Modal={loadWeb3Modal}
+              logoutOfWeb3Modal={logoutOfWeb3Modal}
+              blockExplorer={blockExplorer}
+            />
+          </Row>
+          <Row>{networkDisplay}</Row>
+        </Col>
+      </Row>
+      <div style={{ background: `${currentTheme === "light" ? "#f2f7f5" : "#0f0e17"}` }}>
         {completeDisplay}
 
         <div style={{ padding: 8, marginTop: 32 }}>
@@ -521,12 +550,6 @@ function App(props) {
           </Button>
         </div>
 
-        {/*
-            🎛 this scaffolding is full of commonly used components
-            this <Contract/> component will automatically parse your ABI
-            and give you a form to interact with it locally
-        */}
-
         <div style={{ width: 500, margin: "auto", marginTop: 64 }}>
           <div>Stake Events:</div>
           <List
@@ -554,29 +577,12 @@ function App(props) {
         */}
       </div>
       <ThemeSwitch />
-
-      {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-      <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
-        <Account
-          address={address}
-          localProvider={localProvider}
-          userSigner={userSigner}
-          mainnetProvider={mainnetProvider}
-          price={price}
-          web3Modal={web3Modal}
-          loadWeb3Modal={loadWeb3Modal}
-          logoutOfWeb3Modal={logoutOfWeb3Modal}
-          blockExplorer={blockExplorer}
-        />
-        {faucetHint}
-      </div>
-
       <div style={{ marginTop: 32, opacity: 0.5 }}>
         {/* Add your address here */}
         Created with <span style={{ padding: 10 }}>💗</span> by <Address value={"0xB1898A42cfE1a82F9A8C363E48ce05394c64fE70"} ensProvider={mainnetProvider} fontSize={16} />
       </div>
 
-      {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
+      {/* 🗺 Extra UI like gas price, eth price */}
       <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
         <Row gutter={[16, 16]}>
           <Col span={12}>

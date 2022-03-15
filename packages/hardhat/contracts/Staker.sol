@@ -11,8 +11,8 @@ contract Staker {
   mapping(address => uint) public balances;
 
   uint public constant threshold = 1 ether;
-  uint public deadline = block.timestamp + 30 seconds;
-  bool executed = false;
+  uint public deadline = block.timestamp + 72 hours;
+  bool openForWithdraw = false;
 
 
   constructor(address exampleExternalContractAddress){
@@ -27,8 +27,7 @@ contract Staker {
   event Stake(address, uint);
 
 
-  function stake() public payable {
-    require(!executed, "Goal reached , staking not allowed!");
+  function stake() public payable notCompleted{
     require(msg.value >= 0.001 ether, "Minimum 0.001 ether!");
 
     uint amount = msg.value;
@@ -42,18 +41,21 @@ contract Staker {
 
 
   function execute() public notCompleted{
+    uint contractBalance = address(this).balance;
     require(block.timestamp >= deadline, "Can't execute before deadline!");
 
-    require(address(this).balance >= threshold, "Threshold not reached yet, keep staking!");
-
-    exampleExternalContract.complete{value: address(this).balance}();
-    executed = true;
+    if(contractBalance >=  threshold){
+      exampleExternalContract.complete{value: address(this).balance}();
+    }
+    else {
+      openForWithdraw = true;
+    }
   }
 
   function withdraw(address payable _to) public notCompleted{
-    require(balances[_to] > 0, "No contributions found for this address");
+    require(openForWithdraw, "Not open for withdraw, Please wait for an execution!");
 
-    (bool success, ) = _to.call{value: balances[_to]}("");
+    (bool success, ) = _to.call{value: balances[msg.sender]}("");
     require(success, "Failed to send Ether");
     delete balances[_to];
   }

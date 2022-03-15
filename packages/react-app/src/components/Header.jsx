@@ -7,8 +7,8 @@ export default function Header() {
   return (
     <a href="/" /*target="_blank" rel="noopener noreferrer"*/>
       <PageHeader
-        title="Staker"
-        subTitle="🪙 Decentralized Staking App"
+        title="Staker Dapp"
+        subTitle=""
         style={{ cursor: "pointer" }}
       />
     </a>

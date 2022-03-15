@@ -1,6 +1,16 @@
 # 🥩 Decentralized Staking App
 
-To test:
+> See demo: https://ipfs.io/ipfs://bafybeigu3bj74zm6zectosfqzes76nrrequm4tz3muynop7uaodzfydiva/
+
+
+
+To test locally:
+
+`git clone https://github.com/yves-ganza/staking-dApp.git`
+
+`cd staking-dApp`
+
+`yarn install`
 
 `yarn start` (react app frontend)
 
